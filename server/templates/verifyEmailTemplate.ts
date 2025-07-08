@@ -1,0 +1,71 @@
+export const verifyEmailTemplate = (token: string) => {
+  const link = `https://www.fitlyai.com/api/verify-email?token=${token}`;
+
+  return `
+  <!DOCTYPE html>
+  <html>
+    <head>
+      <meta charset="UTF-8" />
+      <title>Verify Your Email - FitlyAI</title>
+      <style>
+        body {
+          font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+          background-color: #f9fafb;
+          color: #1f2937;
+          padding: 0;
+          margin: 0;
+        }
+        .container {
+          max-width: 600px;
+          margin: 40px auto;
+          background-color: #ffffff;
+          border-radius: 12px;
+          padding: 40px;
+          box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .header {
+          text-align: center;
+          margin-bottom: 32px;
+        }
+        .logo {
+          height: 50px;
+          margin-bottom: 10px;
+        }
+        .button {
+          display: inline-block;
+          padding: 14px 24px;
+          margin-top: 24px;
+          background-color: #10b981;
+          color: #ffffff;
+          text-decoration: none;
+          font-weight: bold;
+          border-radius: 8px;
+        }
+        .footer {
+          margin-top: 40px;
+          font-size: 12px;
+          color: #6b7280;
+          text-align: center;
+        }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <img class="logo" src="https://www.fitlyai.com/logo.png" alt="FitlyAI Logo" />
+          <h2>Welcome to FitlyAI!</h2>
+        </div>
+        <p>Thanks for signing up. Please verify your email address by clicking the button below:</p>
+        <p style="text-align: center;">
+          <a class="button" href="${link}">Verify My Email</a>
+        </p>
+        <p>If the button doesn't work, copy and paste this link into your browser:</p>
+        <p><a href="${link}">${link}</a></p>
+        <div class="footer">
+          © ${new Date().getFullYear()} FitlyAI – All rights reserved.
+        </div>
+      </div>
+    </body>
+  </html>
+  `;
+};

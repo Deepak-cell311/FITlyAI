@@ -1,0 +1,86 @@
+Takes a logged-in user's Supabase user_id and email
+
+Accepts a selected tier (premium or pro)
+
+Looks up the correct Stripe Price ID
+
+Creates a Stripe Checkout Session
+
+Adds the user’s ID/email as metadata
+
+Sends back the Stripe URL to redirect the user
+
+🧾 routes/checkout.js (create this route file)
+js
+Copy
+Edit
+// routes/checkout.js
+const express = require("express");
+const router = express.Router();
+const Stripe = require("stripe");
+require("dotenv").config();
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+
+const PRICE_LOOKUP = {
+  premium: process.env.PRICE_PREMIUM_MONTHLY,
+  pro: process.env.PRICE_PRO_MONTHLY,
+};
+
+router.post("/create-checkout-session", async (req, res) => {
+  const { tier, userId, email } = req.body;
+
+  if (!tier || !["premium", "pro"].includes(tier)) {
+    return res.status(400).json({ error: "Invalid tier selection" });
+  }
+
+  if (!userId || !email) {
+    return res.status(400).json({ error: "Missing userId or email" });
+  }
+
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "subscription",
+      line_items: [
+        {
+          price: PRICE_LOOKUP[tier],
+          quantity: 1,
+        },
+      ],
+      metadata: {
+        user_id: userId,
+        email: email,
+        selected_tier: tier,
+      },
+      customer_email: email,
+      success_url: "https://yourdomain.com/success",
+      cancel_url: "https://yourdomain.com/cancel",
+    });
+
+    return res.status(200).json({ url: session.url });
+  } catch (error) {
+    console.error("Stripe error:", error);
+    res.status(500).json({ error: "Unable to create Stripe session" });
+  }
+});
+
+module.exports = router;
+🔧 Add the Route to Your Server (index.js or server.js)
+In your main Express server file:
+
+js
+Copy
+Edit
+const express = require("express");
+const app = express();
+const checkoutRoute = require("./routes/checkout");
+
+app.use(express.json());
+app.use("/api", checkoutRoute);
+This makes the route available at:
+
+pgsql
+Copy
+Edit
+POST /api/create-checkout-session

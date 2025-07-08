@@ -1,0 +1,57 @@
+<!-- Pricing Modal -->
+<div id="pricing-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:999;">
+  <div style="max-width:900px; margin:80px auto; background:white; padding:2rem; border-radius:12px;">
+    <h2 style="text-align:center; font-size:24px; font-weight:bold;">Choose Your Fitness Journey</h2>
+    <div style="display:flex; justify-content:space-between; margin-top:2rem;">
+      
+      <!-- Free Tier -->
+      <div style="flex:1; border:1px solid #ccc; padding:1rem; margin:0 0.5rem;">
+        <h3>Free</h3>
+        <p>$0 / forever</p>
+        <ul>
+          <li>10 AI messages/day</li>
+          <li>Basic workout suggestions</li>
+        </ul>
+        <button onclick="alert('Free plan selected')">Start Free Trial</button>
+      </div>
+
+      <!-- Premium Tier -->
+      <div style="flex:1; border:2px solid #00f; padding:1rem; margin:0 0.5rem;">
+        <h3>Premium</h3>
+        <p>$15 / month</p>
+        <ul>
+          <li>Unlimited chat</li>
+          <li>Dashboard access</li>
+        </ul>
+        <button onclick="subscribe('premium')">Choose Premium</button>
+      </div>
+
+      <!-- Pro Tier -->
+      <div style="flex:1; border:1px solid #000; padding:1rem; margin:0 0.5rem;">
+        <h3>Pro</h3>
+        <p>$29 / month</p>
+        <ul>
+          <li>All Premium features</li>
+          <li>Macro tracking</li>
+        </ul>
+        <button onclick="subscribe('pro')">Choose Pro</button>
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:1rem;">
+      <button onclick="document.getElementById('pricing-modal').style.display='none'">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- Script -->
+<script>
+async function subscribe(plan) {
+  const res = await fetch('/create-checkout-session', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ plan })
+  });
+  const data = await res.json();
+  if (data.url) window.location.href = data.url;
+}
+</script>

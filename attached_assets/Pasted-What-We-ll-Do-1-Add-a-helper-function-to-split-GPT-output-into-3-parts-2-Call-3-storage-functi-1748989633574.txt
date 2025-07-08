@@ -1,0 +1,116 @@
+What We’ll Do
+✅ 1. Add a helper function to split GPT output into 3 parts
+✅ 2. Call 3 storage functions to save macros, meals, workouts
+✅ 3. Show the newly saved data in the dashboard
+✂️ Step 1: Parse GPT Output
+Let’s assume GPT gives you this format:
+
+yaml
+Copy
+Edit
+1. Macro Plan:
+- Calories: 2000
+- Protein: 150g
+- Carbs: 200g
+- Fats: 60g
+
+2. 7-Day Meal Plan:
+Monday
+- Breakfast: Greek yogurt + berries...
+
+3. Workout Plan:
+Day 1: Push day – Bench press, triceps dips...
+Add this helper in utils/parsePlan.ts (or directly inside routes.ts if you prefer):
+
+ts
+Copy
+Edit
+export function splitPlanSections(planText: string) {
+  const [macrosRaw, mealsRaw, workoutsRaw] = planText
+    .split(/2\. 7-Day Meal Plan:|3\. Workout Plan:/);
+
+  const macros = macrosRaw?.replace("1. Macro Plan:", "").trim();
+  const meals = mealsRaw?.trim();
+  const workouts = workoutsRaw?.trim();
+
+  return { macros, meals, workouts };
+}
+💾 Step 2: Save Each Section to the Right Table
+Inside your /api/generate-plan/:userId route, right after this:
+
+ts
+Copy
+Edit
+const content = aiResult.choices[0].message.content;
+Add this:
+
+ts
+Copy
+Edit
+const { macros, meals, workouts } = splitPlanSections(content || "");
+
+await storage.saveMacroPlan(userId, macros);
+await storage.saveMealPlan(userId, meals);
+await storage.saveWorkoutPlan(userId, workouts);
+Then add these methods to storage.ts:
+
+ts
+Copy
+Edit
+async saveMacroPlan(userId: number, macroText: string) {
+  // For now, just store as text
+  return this.db.insert("macro_plans").values({
+    user_id: userId,
+    plan_text: macroText
+  });
+}
+
+async saveMealPlan(userId: number, mealText: string) {
+  return this.db.insert("meal_plans").values({
+    user_id: userId,
+    plan_text: mealText
+  });
+}
+
+async saveWorkoutPlan(userId: number, workoutText: string) {
+  return this.db.insert("workout_plans").values({
+    user_id: userId,
+    plan_text: workoutText
+  });
+}
+✅ Later we can structure each plan in detail, but this gives you working storage now.
+
+👁️ Step 3: Show Plans in the Dashboard
+In your dashboard page, display:
+
+tsx
+Copy
+Edit
+<section>
+  <h2 className="text-lg font-bold">My Macros</h2>
+  <p>{macroPlanText}</p>
+
+  <h2 className="text-lg font-bold mt-6">Meal Plan</h2>
+  <p>{mealPlanText}</p>
+
+  <h2 className="text-lg font-bold mt-6">Workout Plan</h2>
+  <p>{workoutPlanText}</p>
+</section>
+Use useEffect() to fetch each from your API:
+
+tsx
+Copy
+Edit
+useEffect(() => {
+  fetch(`/api/plan/macro/${userId}`).then(res => res.json()).then(data => setMacroPlanText(data.plan_text));
+  fetch(`/api/plan/meal/${userId}`).then(res => res.json()).then(data => setMealPlanText(data.plan_text));
+  fetch(`/api/plan/workout/${userId}`).then(res => res.json()).then(data => setWorkoutPlanText(data.plan_text));
+}, []);
+✅ Want to Go Further?
+You can now:
+
+🧱 Break macros into structured numbers (for graphing or alerts)
+
+🍳 Show meals in table format
+
+🏋️ Let users check off completed workouts

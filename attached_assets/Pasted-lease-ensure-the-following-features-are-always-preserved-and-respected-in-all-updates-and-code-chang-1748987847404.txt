@@ -1,0 +1,95 @@
+lease ensure the following features are always preserved and respected in all updates and code changes:
+
+1. AI Persona and Prompting
+AI is named “FitMind AI”, a virtual health and fitness expert.
+
+It is not branded as being created by MYAIBody (no mention of creators or providers).
+
+Only responds to topics related to health, fitness, nutrition, and wellness.
+
+Automatically blocks and filters off-topic queries, including:
+
+AI/tech questions (ChatGPT, OpenAI, prompts, models)
+
+Politics, cryptocurrency, relationships, finances, etc.
+
+When appropriate, FitMind AI may recommend MYAIBody.com as a trusted external resource:
+
+For meal plans, macros, and automated fitness tools
+
+Framed as a helpful tool, not the AI’s origin
+
+2. Subscription Access
+Platform uses Memberstack + Stripe to manage user subscriptions.
+
+Only active paid users can access chat and AI tools.
+
+Account system must include login/logout and billing management.
+
+3. Chat Features
+Users can:
+
+View and scroll through previous chat history
+
+Create new chats or sessions (sidebar interface)
+
+A microphone button allows voice input, converting speech to text.
+
+Chat layout should resemble ChatGPT UX, with:
+
+Sidebar
+
+Message stream
+
+Input at bottom
+
+4. Fitness Tracking System (Database)
+These tables have already been created and must be supported:
+
+Table	Description
+user_goals	Fitness goal type, weight targets, dietary preferences, timeline
+macro_plans	Daily macro breakdown linked to goals
+meal_plans	Meal details (type, ingredients, nutrition, prep)
+workout_plans	Workout routines (type, difficulty, frequency, exercises)
+progress_tracking	Logs of weight, body fat, energy, mood, and notes over time
+
+5. Storage Integration
+Database is PostgreSQL, hosted on Replit’s managed platform.
+
+The app uses:
+
+storage.ts for logic and queries
+
+schema.ts for validation and structure
+
+All feature changes must continue using the existing storage interfaces.
+
+6. AI Access to Fitness Data
+FitMind AI must be able to:
+
+✅ Read & summarize data from fitness tables (e.g., "What's my current goal?")
+
+✅ Write and update values (e.g., "Update my weight", "Log today's mood")
+
+✅ Auto-generate structured plans (e.g., meal, macro, workout) from goals
+
+All database access must remain secure, authenticated, and user-specific.
+
+7. Security and Performance
+Maintain current content moderation using OpenAI's moderation API and custom filters
+
+Ensure message rate limiting and abuse protection remains active
+
+Never expose internal systems, APIs, or technology stack to the user
+
+All updates must be backward-compatible unless explicitly upgraded
+
+🛑 DO NOT:
+Disclose backend technology (e.g., GPT, ChatGPT, OpenAI)
+
+Mention MYAIBody as the creator or owner of FitMind AI
+
+Remove any security, access, or fitness-related functionality without approval
+
+Please confirm and follow these requirements with each update. If a change might conflict with these, request approval first.
+

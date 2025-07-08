@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <button onclick="subscribe()">Start Subscription</button>
+    <script>
+      async function subscribe() {
+        const res = await fetch("https://fitbody-ai-aarshadamir.replit.app/create-checkout-session", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            email: "testuser@example.com"
+          })
+        });
+
+        const data = await res.json();
+        console.log("✅ Stripe URL:", data.url);
+        if (data.url) window.location.href = data.url;
+      }
+    </script>
+  </body>
+</html>

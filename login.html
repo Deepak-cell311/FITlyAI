@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitlyAI - Sign In</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .logo {
+      font-size: 32px;
+      font-weight: 700;
+      color: #667eea;
+      margin-bottom: 10px;
+    }
+
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #e1e5e9;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      margin-bottom: 20px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .error-message {
+      background: #fee;
+      color: #c33;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .success-message {
+      background: #efe;
+      color: #363;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .links {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    .links a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .links a:hover {
+      text-decoration: underline;
+    }
+
+    .demo-accounts {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .demo-accounts h4 {
+      margin-bottom: 8px;
+      color: #333;
+    }
+
+    .demo-account {
+      margin: 4px 0;
+      font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="logo">FitlyAI</div>
+    <div class="subtitle">Sign in to your account</div>
+
+    <div class="error-message" id="errorMessage"></div>
+    <div class="success-message" id="successMessage"></div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" required placeholder="Enter your email">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" required placeholder="Enter your password">
+      </div>
+      <button type="submit" class="submit-btn" id="loginBtn">Sign In</button>
+    </form>
+
+    <div class="links">
+      <a href="signup.html">Create Account</a>
+      <a href="/">← Back to Home</a>
+    </div>
+
+    <div class="demo-accounts">
+      <h4>Demo Accounts:</h4>
+      <div class="demo-account">premium@demo.com | password</div>
+      <div class="demo-account">pro@demo.com | password</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const supabase = supabase.createClient(
+      'https://nythxdxvrgvrchfddnzk.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im55dGh4ZHh2cmd2cmNoZmRkbnprIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg5ODY2MzMsImV4cCI6MjA2NDU2MjYzM30.T6mKxRxCw5W64kXqrqhPelGzIk8pDinN2iTTcXumU8s'
+    );
+
+    function showError(message) {
+      const errorEl = document.getElementById('errorMessage');
+      errorEl.textContent = message;
+      errorEl.style.display = 'block';
+      document.getElementById('successMessage').style.display = 'none';
+    }
+
+    function showSuccess(message) {
+      const successEl = document.getElementById('successMessage');
+      successEl.textContent = message;
+      successEl.style.display = 'block';
+      document.getElementById('errorMessage').style.display = 'none';
+    }
+
+    function setLoading(isLoading) {
+      const btn = document.getElementById('loginBtn');
+      btn.disabled = isLoading;
+      btn.textContent = isLoading ? 'Signing In...' : 'Sign In';
+    }
+
+    async function signIn(email, password) {
+      try {
+        setLoading(true);
+        
+        const { data, error } = await supabase.auth.signInWithPassword({ 
+          email, 
+          password 
+        });
+
+        if (error) {
+          showError(error.message);
+          return;
+        }
+
+        if (data.user) {
+          showSuccess('Sign in successful! Redirecting...');
+          
+          setTimeout(async () => {
+            try {
+              const session = await supabase.auth.getSession();
+              if (session.data.session?.access_token) {
+                const response = await fetch('/api/auth/supabase-verify', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ token: session.data.session.access_token })
+                });
+
+                if (response.ok) {
+                  window.location.href = '/';
+                } else {
+                  showError('Authentication verification failed. Please try again.');
+                }
+              }
+            } catch (syncError) {
+              console.error('Backend sync error:', syncError);
+              window.location.href = '/';
+            }
+          }, 1000);
+        }
+      } catch (error) {
+        showError('An unexpected error occurred. Please try again.');
+        console.error('Sign in error:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      await signIn(email, password);
+    });
+
+    // Check if user is already authenticated
+    window.addEventListener('load', async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        window.location.href = '/';
+      }
+    });
+  </script>
+</body>
+</html>

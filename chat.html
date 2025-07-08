@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>FITlyAI Chat</title>
+  <link rel="stylesheet" href="style.css" />
+
+</head>
+<body>
+  <div class="account-button-container">
+    <button onclick="window.location.href='/account'">Account</button>
+  </div>
+
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <h2>FITlyAI</h2>
+      <button onclick="startNewChat()">+ New Chat</button>
+      <div class="chat-history" id="chat-history"></div>
+    </div>
+
+    <!-- Chat Area -->
+    <div class="chat-container">
+      <div id="chatbox" class="chat-box">
+        <div class="message bot">
+          Welcome to your personal AI health coach. How can I help you today?
+        </div>
+      </div>
+      <form id="chat-form">
+        <input type="text" id="user-input" placeholder="Type your message..." autocomplete="off" required />
+        <button type="button" id="mic-button">🎤</button>
+        <button type="submit">Send</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

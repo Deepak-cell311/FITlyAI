@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FITlyAI - Your Personal Health & Fitness Coach</title>
+    <meta name="description" content="Get personalized diet plans, workout routines, and health advice from FITlyAI - your 24/7 AI fitness coach. Voice input supported, subscription-based." />
+    
+    <!-- Open Graph tags for social sharing -->
+    <meta property="og:title" content="FITlyAI - Personal Health & Fitness Coach" />
+    <meta property="og:description" content="AI-powered fitness coaching with personalized workout plans, nutrition advice, and health guidance. Always consult healthcare professionals for medical advice." />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://fitlyai.replit.app" />
+    
+    <!-- Twitter Card tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="FITlyAI - Personal Health & Fitness Coach" />
+    <meta name="twitter:description" content="AI-powered fitness coaching with personalized workout plans, nutrition advice, and health guidance." />
+    
+
+    
+    <!-- Error Boundary for Runtime Stability -->
+    <script>
+      // Prevent runtime errors from crashing the application
+      window.addEventListener('error', function(event) {
+        console.warn('Caught runtime error:', event.error?.message || 'Unknown error');
+        event.preventDefault();
+        return true;
+      });
+      
+      window.addEventListener('unhandledrejection', function(event) {
+        console.warn('Caught unhandled promise rejection:', event.reason);
+        event.preventDefault();
+      });
+      
+      console.log('FitlyAI error handlers initialized');
+    </script>
+
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
