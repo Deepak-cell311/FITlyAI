@@ -1,3 +1,4 @@
+import React from "react";
 import { AlertTriangle, Shield, Heart } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 

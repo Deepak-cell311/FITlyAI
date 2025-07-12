@@ -1,3 +1,4 @@
+import React from "react"
 import { useState, useEffect } from "react";
 import { NavigationHeader } from "@/components/navigation-header";
 import { SubscriptionStatus } from "@/components/subscription-status";

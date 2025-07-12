@@ -131,7 +131,7 @@ app.use((req, res, next) => {
   console.log("Resend key present:", !!process.env.RESEND_API_KEY);
   console.log("Environment mode:", app.get("env"));
   
-  const port = 5000;
+  const port = process.env.PORT || 5000;
   server.listen({
     port,
     host: "0.0.0.0",

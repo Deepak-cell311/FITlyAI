@@ -1,3 +1,4 @@
+import React from "react"
 import { User, Crown, Heart, LogOut, BarChart3, Settings, CreditCard, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";

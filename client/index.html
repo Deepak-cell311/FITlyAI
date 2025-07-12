@@ -23,18 +23,18 @@
     <!-- Error Boundary for Runtime Stability -->
     <script>
       // Prevent runtime errors from crashing the application
-      window.addEventListener('error', function(event) {
-        console.warn('Caught runtime error:', event.error?.message || 'Unknown error');
-        event.preventDefault();
-        return true;
-      });
+      // window.addEventListener('error', function(event) {
+      //   console.warn('Caught runtime error:', event.error?.message || 'Unknown error');
+      //   event.preventDefault();
+      //   return true;
+      // });
       
-      window.addEventListener('unhandledrejection', function(event) {
-        console.warn('Caught unhandled promise rejection:', event.reason);
-        event.preventDefault();
-      });
+      // window.addEventListener('unhandledrejection', function(event) {
+      //   console.warn('Caught unhandled promise rejection:', event.reason);
+      //   event.preventDefault();
+      // });
       
-      console.log('FitlyAI error handlers initialized');
+      // console.log('FitlyAI error handlers initialized');
     </script>
 
   </head>

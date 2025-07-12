@@ -194,6 +194,9 @@ importers:
       passport-local:
         specifier: ^1.0.0
         version: 1.0.0
+      process:
+        specifier: ^0.11.10
+        version: 0.11.10
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -3300,6 +3303,10 @@ packages:
     resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
     engines: {node: '>=14'}
     hasBin: true
+
+  process@0.11.10:
+    resolution: {integrity: sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==}
+    engines: {node: '>= 0.6.0'}
 
   prop-types@15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}
@@ -6586,6 +6593,8 @@ snapshots:
   postgres-range@1.1.4: {}
 
   prettier@3.6.2: {}
+
+  process@0.11.10: {}
 
   prop-types@15.8.1:
     dependencies:
