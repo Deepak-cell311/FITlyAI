@@ -61,6 +61,9 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        mint: "#10B981",      
+        azure: "#3B82F6",     
+        gunmetal: "#22292f",  
       },
       keyframes: {
         "accordion-down": {

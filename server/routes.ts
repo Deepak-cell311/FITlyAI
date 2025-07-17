@@ -218,156 +218,127 @@ async function detectAndExecuteFitnessActions(message: string, userId: number): 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Create an API router to ensure proper route precedence
   const apiRouter = express.Router();
-  // Stripe webhook endpoint - must come before express.json() middleware
-  app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
-    const sig = req.headers['stripe-signature'];
-    let event: Stripe.Event;
-
-    try {
-      event = stripe.webhooks.constructEvent(req.body, sig as string, process.env.STRIPE_WEBHOOK_SECRET!);
-    } catch (err: any) {
-      console.error('⚠️ Webhook signature verification failed.', err.message);
-      return res.status(400).send(`Webhook Error: ${err.message}`);
-    }
-
-    // Handle event types
-    switch (event.type) {
-      case 'checkout.session.completed': {
-        const session = event.data.object as Stripe.Checkout.Session;
-        const userEmail = session.customer_email;
-        const customerId = session.customer as string;
-
-        // Update the user's subscription info in user_profiles table
-        const { data: user, error } = await supabaseAdmin
-          .from('user_profiles')
-          .update({ 
-            plan: session.metadata?.tier || 'premium'
-          })
-          .eq('id', session.metadata?.userId)
-          .select();
-
-        if (error) {
-          console.error('❌ Supabase update error:', error.message);
-          return res.status(500).send('Failed to update user subscription.');
-        }
-
-        // Send subscription confirmation email
-        if (user && user[0] && session.customer_email) {
-          try {
-            const planName = session.metadata?.tier === 'pro' ? 'Pro' : 'Premium';
-            const amount = session.metadata?.tier === 'pro' ? '19.99' : '14.99';
-            
-            await emailService.sendSubscriptionConfirmationEmail(
-              session.customer_email, 
-              user[0].first_name || 'User',
-              planName,
-              amount
-            );
-          } catch (emailError) {
-            console.error('Failed to send subscription confirmation email:', emailError);
-            // Don't fail webhook if email fails
-          }
-        }
-
-        console.log('✅ User subscription updated for:', userEmail);
-        break;
-      }
-
-      // Handle other events like cancellations, renewals, etc.
-      default:
-        console.log(`Unhandled event type ${event.type}`);
-    }
-
-    res.status(200).json({ received: true });
-  });
-
   app.use(express.json());
 
+  // Stripe webhook endpoint - must come before express.json() middleware
+  // app.post('/api/webhook', express.raw({type: 'application/json'}), async (req, res) => {
+  //   const sig = req.headers['stripe-signature'];
+  //   let event: Stripe.Event;
+
+  //   try {
+  //     event = stripe.webhooks.constructEvent(req.body, sig as string, process.env.STRIPE_WEBHOOK_SECRET!);
+  //   } catch (err: any) {
+  //     console.error('⚠️ Webhook signature verification failed.', err.message);
+  //     return res.status(400).send(`Webhook Error: ${err.message}`);
+  //   }
+
+  //   // Handle event types
+  //   switch (event.type) {
+  //     case 'checkout.session.completed': {
+  //       const session = event.data.object as Stripe.Checkout.Session;
+  //       const userEmail = session.customer_email;
+  //       const customerId = session.customer as string;
+
+  //       // Update the user's subscription info in user_profiles table
+  //       const { data: user, error } = await supabaseAdmin
+  //         .from('user_profiles')
+  //         .update({ 
+  //           plan: session.metadata?.tier || 'premium'
+  //         })
+  //         .eq('id', session.metadata?.userId)
+  //         .select();
+
+  //       if (error) {
+  //         console.error('❌ Supabase update error:', error.message);
+  //         return res.status(500).send('Failed to update user subscription.');
+  //       }
+
+  //       // Send subscription confirmation email
+  //       if (user && user[0] && session.customer_email) {
+  //         try {
+  //           const planName = session.metadata?.tier === 'pro' ? 'Pro' : 'Premium';
+  //           const amount = session.metadata?.tier === 'pro' ? '19.99' : '14.99';
+            
+  //           await emailService.sendSubscriptionConfirmationEmail(
+  //             session.customer_email, 
+  //             user[0].first_name || 'User',
+  //             planName,
+  //             amount
+  //           );
+  //         } catch (emailError) {
+  //           console.error('Failed to send subscription confirmation email:', emailError);
+  //           // Don't fail webhook if email fails
+  //         }
+  //       }
+
+  //       console.log('✅ User subscription updated for:', userEmail);
+  //       break;
+  //     }
+
+  //     // Handle other events like cancellations, renewals, etc.
+  //     default:
+  //       console.log(`Unhandled event type ${event.type}`);
+  //   }
+
+  //   res.status(200).json({ received: true });
+  // });
+
+
   // Signup endpoint using Resend verification flow
+  
   apiRouter.post('/signup', async (req, res) => {
     try {
-      const { email, password, first_name, last_name } = req.body;
+      const { supabaseId, email, username, first_name, last_name } = req.body;
+      console.log("Signup request body:", req.body);
+      
+      // if (!supabaseId || !email || !username || !first_name || !last_name) {
+      //   return res.status(400).json({ error: "All fields are required" });
+      // }
 
-      if (!email || !password || !first_name || !last_name) {
-        return res.status(400).json({ error: "All fields are required" });
-      }
+      // if (!email || !username || !first_name || !last_name) {
+      //   return res.status(400).json({ error: "All fields are required" });
+      // }
 
       // Check if user already exists in PostgreSQL first
       const existingPostgresUser = await storage.getUserByEmail(email);
-      
-      // Create user with Supabase Auth
-      const { data: newUser, error: authError } = await supabase.auth.signUp({
+      if (existingPostgresUser) {
+        return res.status(400).json({ error: 'User already exists. Please sign in instead.' });
+      }
+
+      const verificationToken = crypto.randomBytes(32).toString("hex");
+      const userInsertData = {
+        username: username,
         email,
-        password,
-      });
-
-      if (authError) {
-        console.log('Supabase auth error:', authError.message);
-        // If user already registered in Supabase, handle gracefully
-        if (authError.message === 'User already registered' || authError.message.includes('already registered')) {
-          if (existingPostgresUser) {
-            // User exists in both systems, just resend verification
-            const verificationToken = crypto.randomBytes(32).toString("hex");
-            
-            await db.update(users)
-              .set({
-                email_verification_token: verificationToken,
-                email_verified: false,
-              })
-              .where(eq(users.id, existingPostgresUser.id));
-
-            console.log("Saved token to DB for", email, ":", verificationToken);
-
-            // Send verification email directly using email service
-            try {
-              const baseUrl = process.env.REPLIT_DOMAINS ? `https://${process.env.REPLIT_DOMAINS}` : `${req.protocol}://${req.get('host')}`;
-              const verificationUrl = `${baseUrl}/api/verify-email?token=${verificationToken}`;
-              await emailService.sendVerificationEmail(email, verificationUrl);
-            } catch (emailError) {
-              console.error('Email sending error:', emailError);
-            }
-
-            return res.status(200).json({ 
-              message: 'Account already exists. A new verification email has been sent to complete your signup.' 
-            });
-          }
+        firstName: first_name,
+        lastName: last_name,
+        supabaseId: supabaseId,
+        email_verification_token: verificationToken,
+        email_verified: false,
+        subscriptionTier: 'free',
+        subscriptionStatus: 'inactive',
+        dailyMessageCount: 0,
+        isBlocked: false
+      };
+      console.log('Attempting to insert user:', userInsertData);
+      try {
+        await db.insert(users).values(userInsertData);
+      } catch (insertErr) {
+        let errMsg = 'Unknown error';
+        if (insertErr instanceof Error) {
+          errMsg = insertErr.message;
         }
-        
-        return res.status(400).json({ error: authError.message });
+        console.error('User insert error:', insertErr);
+        return res.status(500).json({ error: 'Failed to insert user in database', details: errMsg });
       }
+      console.log("Saved token to DB for", email, ":", verificationToken);
 
-      const userId = newUser.user?.id;
-      if (!userId) {
-        return res.status(400).json({ error: "Failed to create user" });
-      }
+      // Send verification email
+      const baseUrl = process.env.REPLIT_DOMAINS
+        ? `https://${process.env.REPLIT_DOMAINS}`
+        : `${req.protocol}://${req.get("host")}`;
 
-      if (!existingPostgresUser) {
-        const verificationToken = crypto.randomBytes(32).toString("hex");
-
-        await db.insert(users).values({
-          username: email.split('@')[0],
-          email,
-          firstName: first_name,
-          lastName: last_name,
-          supabaseId: newUser.user?.id, // ✅ link Supabase
-          email_verification_token: verificationToken,
-          email_verified: false,
-          subscriptionTier: 'free',
-          subscriptionStatus: 'inactive',
-          dailyMessageCount: 0,
-          isBlocked: false
-        });
-
-        console.log("Saved token to DB for", email, ":", verificationToken);
-
-        // Send verification email
-        const baseUrl = process.env.REPLIT_DOMAINS
-          ? `https://${process.env.REPLIT_DOMAINS}`
-          : `${req.protocol}://${req.get("host")}`;
-
-        const verificationUrl = `${baseUrl}/api/verify-email?token=${verificationToken}`;
-        await emailService.sendVerificationEmail(email, verificationUrl);
-      }
+      const verificationUrl = `${baseUrl}/api/verify-email?token=${verificationToken}`;
+      await emailService.sendVerificationEmail(email, verificationUrl);
 
       return res.status(200).json({ 
         message: 'Signup successful. Please check your email to verify your account.' 

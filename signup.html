@@ -179,6 +179,18 @@
 
     <form id="signupForm">
       <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input type="text" id="firstName" required placeholder="Enter your first name">
+      </div>
+      <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input type="text" id="lastName" required placeholder="Enter your last name">
+      </div>
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" required placeholder="Choose a username">
+      </div>
+      <div class="form-group">
         <label for="email">Email Address</label>
         <input type="email" id="email" required placeholder="Enter your email">
       </div>
@@ -243,11 +255,12 @@
       document.getElementById('successMessage').style.display = 'none';
     }
 
-    async function signUp(email, password) {
+    async function signUp(firstName, lastName, username, email, password) {
       try {
         setLoading(true);
         clearMessages();
 
+        // First, create user in Supabase Auth
         const { data, error } = await supabase.auth.signUp({ 
           email, 
           password,
@@ -262,6 +275,23 @@
         }
 
         if (data.user) {
+          // Then, create user in your backend database
+          try {
+            const backendResponse = await fetch('/api/signup', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email,
+                password,
+                first_name: firstName,
+                last_name: lastName,
+                username: username
+              })
+            });
+
+            const backendData = await backendResponse.json();
+
+            if (backendResponse.ok) {
           if (data.user.email_confirmed_at) {
             // User is immediately confirmed
             showSuccess('Account created successfully! Redirecting...');
@@ -293,9 +323,19 @@
             showSuccess('Account created! Please check your email to confirm your account before signing in.');
             
             // Clear the form
+                document.getElementById('firstName').value = '';
+                document.getElementById('lastName').value = '';
+                document.getElementById('username').value = '';
             document.getElementById('email').value = '';
             document.getElementById('password').value = '';
             document.getElementById('confirmPassword').value = '';
+              }
+            } else {
+              showError(backendData.error || 'Failed to create account in backend');
+            }
+          } catch (backendError) {
+            console.error('Backend signup error:', backendError);
+            showError('Account created in Supabase but failed to sync with backend. Please try signing in.');
           }
         }
       } catch (error) {
@@ -309,11 +349,19 @@
     document.getElementById('signupForm').addEventListener('submit', async (e) => {
       e.preventDefault();
       
-      const email = document.getElementById('email').value;
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName = document.getElementById('lastName').value.trim();
+      const username = document.getElementById('username').value.trim();
+      const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
       const confirmPassword = document.getElementById('confirmPassword').value;
 
       // Validation
+      if (!firstName || !lastName || !username) {
+        showError('Please fill in all required fields');
+        return;
+      }
+
       if (password !== confirmPassword) {
         showError('Passwords do not match');
         return;
@@ -329,7 +377,12 @@
         return;
       }
 
-      await signUp(email, password);
+      if (username.length < 3) {
+        showError('Username must be at least 3 characters long');
+        return;
+      }
+
+      await signUp(firstName, lastName, username, email, password);
     });
 
     // Check if user is already authenticated
